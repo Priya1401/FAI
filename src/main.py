@@ -26,16 +26,14 @@ class Game:
 
         # sprites
         self.thief = Thief((400,300), self.all_sprites, self.collision_sprites)
-        self.guard = Guard((600,300), self.all_sprites, self.collision_sprites)
+        self.guard = Guard((600,350), self.all_sprites, self.collision_sprites)
 
     def setup(self):
-        map = load_pygame(join('maps','level1_map.tmx'))
-        print(map)
-        # for obj in map.get_layer_by_name('Objects'):
-        #     CollisionSprite((obj, obj.y), obj.image, (self.all_sprites, self.collision_sprites))
-        #     print(obj.x)
-        #     print(obj.y)
-        #     print(obj.image)
+        map = load_pygame(join('src','maps','level1_map.tmx'))
+        for x,y, image in map.get_layer_by_name('Floor').tiles():
+            Sprite((x * TILE_SIZE,y * TILE_SIZE), image, self.all_sprites)
+        for obj in map.get_layer_by_name('Object'):
+            CollisionSprite((obj.x, obj.y), obj.image, (self.all_sprites, self.collision_sprites), obj)
 
 
     def run(self):
