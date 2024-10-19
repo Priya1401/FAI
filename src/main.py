@@ -3,8 +3,11 @@ from pygame.display import update
 
 from thief import Thief
 from guard import Guard
-from cashbag import Cashbag
+from cashbag import *
 from sprites import *
+from cameraRange import *
+from securityCamera import *
+from guardRange import *
 from settings import *
 from pytmx.util_pygame import load_pygame
 
@@ -23,12 +26,18 @@ class Game:
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites  = pygame.sprite.Group()
         self.cashbag = pygame.sprite.Group()
+        self.blink_sprites = pygame.sprite.Group()
 
         self.setup()
 
         # sprites
-        self.thief = Thief((400,300), self.all_sprites, self.collision_sprites)
-        self.guard = Guard((600,350), self.all_sprites, self.collision_sprites)
+        x,y = (555,380)
+        w,h = (180,43)
+        securityCamera((765,380), self.all_sprites)
+        self.camera_range = CameraRange((x,y),(w,h), self.all_sprites)
+        # self.guard_range = GuardRange((670,400),70,70, self.all_sprites, self.collision_sprites)
+        self.thief = Thief((80,400), self.all_sprites, self.collision_sprites)
+        self.guard = Guard((670,400), self.all_sprites, self.collision_sprites)
 
     def setup(self):
         map = load_pygame(join('src','maps','level1_map.tmx'))
@@ -38,8 +47,8 @@ class Game:
             CollisionSprite((obj.x, obj.y), obj.image, (self.all_sprites, self.collision_sprites), obj)
 
         # Place a single cash bag at a fixed position
-        cash_bag_position = (700, 700)  # Fixed coordinates (adjust as needed)
-        Cashbag(cash_bag_position, (self.all_sprites, self.cashbag)) 
+        cash_bag_position = (545, 700)  # Fixed coordinates (adjust as needed)
+        Cashbag(cash_bag_position, (self.all_sprites, self.cashbag))
 
     def run(self):
         while self.running:
@@ -52,10 +61,6 @@ class Game:
                     self.running = False
             # update
             self.all_sprites.update(dt)
-
-            # # Check if thief collected the cash bag
-            # for cashbag in self.cashbag:
-            #     cashbag.update(self.thief.rect)  # Passing thief's rect for collision detection
 
             # draw
             self.display_surface.fill('black')
