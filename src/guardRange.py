@@ -4,8 +4,9 @@ from settings import *
 
 class GuardRange(pygame.sprite.Sprite):
 
-    def __init__(self, pos, length, breadth, groups, collision_sprites):
+    def __init__(self, pos, length, breadth, groups, collision_sprites, guard):
         super().__init__(groups)
+        self.guard = guard
         self.width = breadth
         self.height = length
         self.image = pygame.Surface((self.width, self.height))
@@ -44,6 +45,8 @@ class GuardRange(pygame.sprite.Sprite):
         self.collision('horizontal')
         self.rect.y += self.direction.y * self.speed * dt
         self.collision('vertical')
+
+
 
     def collision(self, direction):
         for sprite in self.collision_sprites:

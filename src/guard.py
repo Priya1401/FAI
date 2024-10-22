@@ -33,6 +33,16 @@ class Guard(pygame.sprite.Sprite):
         self.rect.y += self.direction.y * self.speed * dt
         self.collision('vertical')
 
+        if self.rect.x > WINDOW_WIDTH:
+            self.rect.x = WINDOW_WIDTH
+        if self.rect.x < 0:
+            self.rect.x = 0
+        if self.rect.y > WINDOW_HEIGHT-50:
+            self.rect.y = WINDOW_HEIGHT-50
+        if self.rect.y < 0:
+            self.rect.y = 0
+
+
     def collision(self, direction):
         for sprite in self.collision_sprites:
             if sprite.rect.colliderect(self.rect):

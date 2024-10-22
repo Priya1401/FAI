@@ -35,9 +35,10 @@ class Game:
         w,h = (180,43)
         securityCamera((765,380), self.all_sprites)
         self.camera_range = CameraRange((x,y),(w,h), self.all_sprites)
-        # self.guard_range = GuardRange((670,400),70,70, self.all_sprites, self.collision_sprites)
         self.thief = Thief((80,400), self.all_sprites, self.collision_sprites)
         self.guard = Guard((670,400), self.all_sprites, self.collision_sprites)
+        self.guard_range = GuardRange((670,400),70,70, self.all_sprites, self.collision_sprites, self.guard)
+
 
     def setup(self):
         map = load_pygame(join('src','maps','level1_map.tmx'))
@@ -59,6 +60,10 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+
+            if pygame.sprite.spritecollide(self.thief, self.cashbag, True):
+                print("Thief reached cashbag! Cashbag removed.")
+
             # update
             self.all_sprites.update(dt)
 
