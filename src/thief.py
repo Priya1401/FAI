@@ -5,7 +5,7 @@ from settings import *
 class Thief(pygame.sprite.Sprite):
     def __init__(self, pos, groups, collision_sprites):
         super().__init__(groups)
-        self.image = pygame.image.load(join('src','images','thief_small.png')).convert_alpha()
+        self.image = pygame.image.load(join('src','images','thief_test.png')).convert_alpha()
         self.rect = self.image.get_rect(center = pos)
 
         # movement
