@@ -1,17 +1,19 @@
 import pygame.sprite
+import math
 
 from settings import *
 
 class Thief(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, collision_sprites):
+    def __init__(self, pos, groups, collision_sprites, guard):
         super().__init__(groups)
         self.image = pygame.image.load(join('src','images','thief_test.png')).convert_alpha()
-        self.rect = self.image.get_rect(center = pos)
-
+        self.rect = self.image.get_rect(center=pos)
+        
         # movement
         self.direction = pygame.Vector2()
         self.speed = 500
         self.collision_sprites = collision_sprites
+        self.guard = guard  # Store the guard reference
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -19,34 +21,49 @@ class Thief(pygame.sprite.Sprite):
         self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
         self.direction = self.direction.normalize() if self.direction else self.direction
 
-
     def move(self, dt):
         self.rect.x += self.direction.x * self.speed * dt
         self.collision('horizontal')
         self.rect.y += self.direction.y * self.speed * dt
         self.collision('vertical')
 
-        if self.rect.x > WINDOW_WIDTH:
-            self.rect.x = WINDOW_WIDTH
-        if self.rect.x < 0:
-            self.rect.x = 0
-        if self.rect.y > WINDOW_HEIGHT-50:
-            self.rect.y = WINDOW_HEIGHT-50
-        if self.rect.y < 0:
-            self.rect.y = 0
-
-
+        # Boundary checks
+        self.rect.x = max(0, min(WINDOW_WIDTH, self.rect.x))
+        self.rect.y = max(0, min(WINDOW_HEIGHT - 50, self.rect.y))
 
     def collision(self, direction):
         for sprite in self.collision_sprites:
             if sprite.rect.colliderect(self.rect):
                 if direction == 'horizontal':
-                    if self.direction.x > 0: self.rect.right = sprite.rect.left
-                    if self.direction.x < 0: self.rect.left = sprite.rect.right
+                    if self.direction.x > 0:
+                        self.rect.right = sprite.rect.left
+                    elif self.direction.x < 0:
+                        self.rect.left = sprite.rect.right
                 else:
-                    if self.direction.y < 0: self.rect.top = sprite.rect.bottom
-                    if self.direction.y > 0: self.rect.bottom = sprite.rect.top
+                    if self.direction.y < 0:
+                        self.rect.top = sprite.rect.bottom
+                    elif self.direction.y > 0:
+                        self.rect.bottom = sprite.rect.top
+
+    def check_proximity(self):
+        distance = math.hypot(self.rect.centerx - self.guard.rect.centerx, 
+                              self.rect.centery - self.guard.rect.centery)
+        threshold = 100  
+
+        if distance < threshold and self.noObjectInBetween():
+            print("Guard is close to the thief!")
+
+    def noObjectInBetween(self):
+        guard_pos = pygame.Vector2(self.guard.rect.center)
+        thief_pos = pygame.Vector2(self.rect.center)
+
+        for sprite in self.collision_sprites:
+            if sprite.rect.clipline(guard_pos, thief_pos):
+                return False  
+
+        return True  
 
     def update(self, dt):
         self.input()
         self.move(dt)
+        self.check_proximity() 

@@ -35,9 +35,10 @@ class Game:
         w,h = (180,43)
         securityCamera((765,380), self.all_sprites)
         self.camera_range = CameraRange((x,y),(w,h), self.all_sprites)
-        self.thief = Thief((80,400), self.all_sprites, self.collision_sprites)
         self.guard = Guard((670,400), self.all_sprites, self.collision_sprites)
-        self.guard_range = GuardRange((670,400),70,70, self.all_sprites, self.collision_sprites, self.guard)
+        self.thief = Thief((80,400), self.all_sprites, self.collision_sprites,self.guard)
+        
+        # self.guard_range = GuardRange((670,400),70,70, self.all_sprites, self.collision_sprites, self.guard)
 
 
     def setup(self):
