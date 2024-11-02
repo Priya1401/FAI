@@ -27,6 +27,8 @@ class Game:
         self.collision_sprites  = pygame.sprite.Group()
         self.cashbag = pygame.sprite.Group()
         self.blink_sprites = pygame.sprite.Group()
+        
+        self.cashbag_collected = False
 
         self.setup()
 
@@ -62,8 +64,14 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
-            if pygame.sprite.spritecollide(self.thief, self.cashbag, True):
+            if not self.cashbag_collected and pygame.sprite.spritecollide(self.thief, self.cashbag, True):
                 print("Thief reached cashbag! Cashbag removed.")
+                self.cashbag_collected = True
+            
+            if self.cashbag_collected and self.is_thief_in_terminal_area():
+                print("Thief won!!!")
+                self.show_winning_message("Thief won!!!")
+                self.running = False
 
             # update
             self.all_sprites.update(dt)
@@ -75,6 +83,19 @@ class Game:
 
 
         pygame.quit()
+        
+    def is_thief_in_terminal_area(self):
+        min_x, max_x = 320, 441
+        min_y, max_y = 96, 131
+        return (min_x <= self.thief.rect.x <= max_x) and (min_y <= self.thief.rect.y <= max_y)
+
+    
+    def show_winning_message(self, message):
+        font = pygame.font.Font(None, 74)
+        text_surface = font.render(message, True, (255, 255, 255))
+        self.display_surface.blit(text_surface, (WINDOW_WIDTH // 2 - text_surface.get_width() // 2, WINDOW_HEIGHT // 2))
+        pygame.display.update()
+        pygame.time.wait(20000)
 
 if __name__ =='__main__':
     game = Game()
