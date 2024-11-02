@@ -26,7 +26,7 @@ class Game:
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites  = pygame.sprite.Group()
         self.cashbag = pygame.sprite.Group()
-        self.blink_sprites = pygame.sprite.Group()
+        # self.blink_sprites = pygame.sprite.Group()
         
         self.cashbag_collected = False
 
@@ -72,6 +72,9 @@ class Game:
                 print("Thief won!!!")
                 self.show_winning_message("Thief won!!!")
                 self.running = False
+            
+            if pygame.sprite.collide_rect(self.thief, self.camera_range):
+                self.show_camera_alert("Thief detected by camera!")
 
             # update
             self.all_sprites.update(dt)
@@ -96,6 +99,13 @@ class Game:
         self.display_surface.blit(text_surface, (WINDOW_WIDTH // 2 - text_surface.get_width() // 2, WINDOW_HEIGHT // 2))
         pygame.display.update()
         pygame.time.wait(20000)
+        
+    def show_camera_alert(self, message):
+        font = pygame.font.Font(None, 50)
+        text_surface = font.render(message, True, (255, 0, 0))  # Red text for alert
+        self.display_surface.blit(text_surface, (WINDOW_WIDTH // 2 - text_surface.get_width() // 2, 50))  # Display near the top
+        pygame.display.update()
+        pygame.time.wait(2000)
 
 if __name__ =='__main__':
     game = Game()
