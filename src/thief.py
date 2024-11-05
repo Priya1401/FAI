@@ -4,7 +4,7 @@ import math
 from settings import *
 
 class Thief(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, collision_sprites, guard):
+    def __init__(self, pos, groups, collision_sprites, guard, camera_range):
         super().__init__(groups)
         self.image = pygame.image.load(join('src','images','thief_test.png')).convert_alpha()
         self.rect = self.image.get_rect(center=pos)
@@ -14,6 +14,8 @@ class Thief(pygame.sprite.Sprite):
         self.speed = 500
         self.collision_sprites = collision_sprites
         self.guard = guard  # Store the guard reference
+        self.camera_range = camera_range
+        self.mask = pygame.mask.from_surface(self.image)
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -61,9 +63,19 @@ class Thief(pygame.sprite.Sprite):
             if sprite.rect.clipline(guard_pos, thief_pos):
                 return False  
 
-        return True  
+        return True
+
+    def check_camera_range(self):
+        offset_x = self.rect.x - self.camera_range.rect.x
+        offset_y =self.rect.y - self.camera_range.rect.y
+        offset = (offset_x, offset_y)
+
+        collision_point = self.camera_range.mask.overlap(self.mask, offset)
+        if collision_point:
+                print("Thief in camera range!")
 
     def update(self, dt):
         self.input()
         self.move(dt)
-        self.check_proximity() 
+        self.check_proximity()
+        self.check_camera_range()
