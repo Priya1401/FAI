@@ -6,6 +6,7 @@ class CameraRange(pygame.sprite.Sprite):
     def __init__(self, pos, size, groups):
         super().__init__(groups)
         self.image = pygame.Surface((size[0], size[1]), pygame.SRCALPHA)
+        self.image = pygame.Surface((size[0], size[1]), pygame.SRCALPHA)
         self.draw_cone(pos, size)
         self.rect = self.image.get_rect(topleft=pos)
 

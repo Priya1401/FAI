@@ -23,6 +23,8 @@ class Thief(pygame.sprite.Sprite):
         self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
         self.direction = self.direction.normalize() if self.direction else self.direction
 
+        
+
     def move(self, dt):
         self.rect.x += self.direction.x * self.speed * dt
         self.collision('horizontal')
@@ -46,6 +48,9 @@ class Thief(pygame.sprite.Sprite):
                         self.rect.top = sprite.rect.bottom
                     elif self.direction.y > 0:
                         self.rect.bottom = sprite.rect.top
+                # else:
+                #     print("Gpoing through walls")
+            
 
     def check_proximity(self):
         distance = math.hypot(self.rect.centerx - self.guard.rect.centerx, 
@@ -72,10 +77,11 @@ class Thief(pygame.sprite.Sprite):
 
         collision_point = self.camera_range.mask.overlap(self.mask, offset)
         if collision_point:
-                print("Thief in camera range!")
+            print("Thief in camera range!")
 
     def update(self, dt):
         self.input()
         self.move(dt)
         self.check_proximity()
         self.check_camera_range()
+

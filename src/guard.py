@@ -10,7 +10,7 @@ class Guard(pygame.sprite.Sprite):
 
         # movement
         self.direction = pygame.Vector2()
-        self.speed = 500
+        self.speed = 200
         self.collision_sprites = collision_sprites
 
 
@@ -26,32 +26,38 @@ class Guard(pygame.sprite.Sprite):
         # print(self.movement)
         self.direction = self.direction.normalize() if self.direction else self.direction
 
+        pygame.time.wait(1)
+
+        # print(f"Guard Movement - Right (D): {keys[pygame.K_d]}, Left (A): {keys[pygame.K_a]}, Up (W): {keys[pygame.K_w]}, Down (S): {keys[pygame.K_s]}")
+        # print(f"Direction - X: {self.direction.x}, Y: {self.direction.y}")
+
+
 
     def move(self, dt):
-        self.rect.x += self.direction.x * self.speed * dt
-        self.collision('horizontal')
-        self.rect.y += self.direction.y * self.speed * dt
-        self.collision('vertical')
+            self.rect.x += self.direction.x * self.speed * dt
+            self.collision('horizontal')
+            self.rect.y += self.direction.y * self.speed * dt
+            self.collision('vertical')
 
-        if self.rect.x > WINDOW_WIDTH:
-            self.rect.x = WINDOW_WIDTH
-        if self.rect.x < 0:
-            self.rect.x = 0
-        if self.rect.y > WINDOW_HEIGHT-50:
-            self.rect.y = WINDOW_HEIGHT-50
-        if self.rect.y < 0:
-            self.rect.y = 0
+            # Boundary checks
+            self.rect.x = max(0, min(WINDOW_WIDTH, self.rect.x))
+            self.rect.y = max(0, min(WINDOW_HEIGHT - 50, self.rect.y))
+
 
 
     def collision(self, direction):
         for sprite in self.collision_sprites:
             if sprite.rect.colliderect(self.rect):
                 if direction == 'horizontal':
-                    if self.direction.x > 0: self.rect.right = sprite.rect.left
-                    if self.direction.x < 0: self.rect.left = sprite.rect.right
+                    if self.direction.x > 0:
+                        self.rect.right = sprite.rect.left
+                    elif self.direction.x < 0:
+                        self.rect.left = sprite.rect.right
                 else:
-                    if self.direction.y < 0: self.rect.top = sprite.rect.bottom
-                    if self.direction.y > 0: self.rect.bottom = sprite.rect.top
+                    if self.direction.y < 0:
+                        self.rect.top = sprite.rect.bottom
+                    elif self.direction.y > 0:
+                        self.rect.bottom = sprite.rect.top
 
     def update(self, dt):
         self.input()
