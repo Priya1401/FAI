@@ -1,4 +1,3 @@
-
 import pygame.time
 from pygame.display import update
 
@@ -66,7 +65,6 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-            
 
             if not self.cashbag_collected and pygame.sprite.spritecollide(self.thief, self.cashbag, True):
                 print("Thief reached cashbag! Cashbag removed.")
