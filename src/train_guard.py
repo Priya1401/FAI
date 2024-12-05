@@ -27,6 +27,22 @@ def load_q_table(file_path):
         print(f"No existing Q-table found. Starting from scratch.")
         return {}
 
+def select_action(q_table, state, possible_actions):
+        """
+        Select the best action for a given state based on the Q-table.
+        """
+        state_index = state
+        if state_index in q_table:
+            # Get Q-values for the state
+            q_values = q_table[state_index]
+            print("Chose from given state value")
+            # Choose the action with the highest Q-value
+            return possible_actions[np.argmax(q_values)]
+        else:
+            # If the state is not in the Q-table, choose a random action
+            print("Chose random")
+            return np.random.choice(possible_actions)
+
 def train_guard():
     """Train the Guard using Q-learning while the Guard moves randomly and the Thief acts according to its Q-table."""
     global EPSILON  # Declare EPSILON as global to modify it within this function
@@ -35,6 +51,7 @@ def train_guard():
 
     # Load the existing Q-table for the Guard or initialize it if it doesn't exist
     Q_table = load_q_table(Q_TABLE_FILE)
+    Thief_q_table = np.load('thief_q_table.npy',allow_pickle=True)
     num_update_count = {}
 
     # Load the Thief's Q-table
@@ -64,15 +81,21 @@ def train_guard():
             else:
                 action = np.argmax(Q_table[state])  # Exploit
 
-            # Get the current state for the Thief and decide its action based on its Q-table
-            thief_state = discretize_state(obs)  # Assuming `obs` is Thief's state representation
-            if thief_state in thief_q_table:
-                thief_action = np.argmax(thief_q_table[thief_state])  # Exploit
-            else:
-                thief_action = np.random.choice(env.action_space.n)  # Explore
+            # # Get the current state for the Thief and decide its action based on its Q-table
+            # thief_state = discretize_state(obs)  # Assuming `obs` is Thief's state representation
+            # if thief_state in thief_q_table:
+            #     thief_action = np.argmax(thief_q_table[thief_state])  # Exploit
+            # else:
+            #     thief_action = np.random.choice(env.action_space.n)  # Explore
 
-            # Take the chosen action for the Guard and Thief
-            obs, reward, done, info = env.guard_step(action, thief_action)
+            #Choose an action for the thief either random or using q table
+            thief_action = select_action(Thief_q_table, state, env.action_space.n)
+
+            # Take the chosen action for the Thief
+            obs, reward, done, info = env.step(thief_action, True, action)
+
+            # # Take the chosen action for the Guard and Thief
+            # obs, reward, done, info = env.guard_step(action, thief_action)
 
             # Convert the next state to a discrete representation
             next_state = discretize_state(obs)
@@ -114,6 +137,7 @@ def train_guard():
     # Save the final trained Q-table
     save_q_table(Q_TABLE_FILE, Q_table)
     print(f"Training complete! Q-table saved to '{Q_TABLE_FILE}'.")
+    
 
 def discretize_state(state):
     """

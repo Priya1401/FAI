@@ -64,12 +64,48 @@ class GuardiansGambitEnv(gym.Env):
         pygame.display.update()
         # pygame.time.wait(1000)
 
-    def step(self, action):
+    # def step(self, action):
+    #     dt = self.game.clock.tick() / 1000.0  # Time delta for updating the game state
+
+    #     # Process actions and update the game
+    #     self.process_thief_action(action, dt)
+    #     # self.process_guard_action(action, dt)
+    #     self.game.all_sprites.update(dt)
+
+    #     # Check if the reward has changed
+    #     current_reward = self.thief_reward + self.guard_reward
+    #     if current_reward != self.prev_thief_reward + self.prev_guard_reward:
+    #         self.last_reward_update_time = pygame.time.get_ticks()
+    #         self.reward_updated = True
+    #         self.prev_thief_reward = self.thief_reward
+    #         self.prev_guard_reward = self.guard_reward
+    #     else:
+    #         self.reward_updated = False
+
+    #     # Apply the time penalty if no reward update has occurred within 5 seconds
+    #     if not self.reward_updated:
+    #         current_time = pygame.time.get_ticks()
+    #         time_since_last_update = (current_time - self.last_reward_update_time) / 1000.0  # in seconds
+    #         if time_since_last_update >= 15:
+    #             print("Time penalty applied! No reward update for 5 seconds.")
+    #             self.thief_reward -= 0.30
+    #             self.guard_reward -= 0.30
+    #             self.last_reward_update_time = current_time  # Reset the timer
+
+    #     done = self.check_game_over()
+    #     self.calculate_rewards()
+
+    #     # Update time penalty
+    #     self.apply_time_penalty()
+
+    #     # Return the new observation, reward, done, and additional info
+    #     return self.get_observation(), self.thief_reward, done, {}
+
+    def step(self, thief_action, isGuard, guard_action):
         dt = self.game.clock.tick() / 1000.0  # Time delta for updating the game state
 
-        # Process actions and update the game
-        self.process_thief_action(action, dt)
-        # self.process_guard_action(action, dt)
+        self.process_thief_action(thief_action, dt)
+        self.process_guard_action(guard_action, dt)
         self.game.all_sprites.update(dt)
 
         # Check if the reward has changed
@@ -99,7 +135,10 @@ class GuardiansGambitEnv(gym.Env):
         self.apply_time_penalty()
 
         # Return the new observation, reward, done, and additional info
-        return self.get_observation(), self.thief_reward, done, {}
+        if isGuard:
+            return self.get_observation(), self.guard_reward, done, {}
+        else:
+            return self.get_observation(), self.thief_reward, done, {}
     
     def guard_step(self, action, action_thief):
         dt = self.game.clock.tick() / 1000.0  # Time delta for updating the game state
