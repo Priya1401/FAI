@@ -47,8 +47,8 @@ class GuardiansGambitEnv(gym.Env):
         self.last_timer_update = pygame.time.get_ticks()
         self.game.running = False
         self.game.cashbag_collected = False
-        self.game.thief.rect.topleft = (80, 400)  # Reset Thief's position
-        self.game.guard.rect.topleft = (670, 400)  # Reset Guard's position
+        self.game.thief.rect.topleft = (670, 650)  # Reset Thief's position
+        self.game.guard.rect.topleft = (670, 100)  # Reset Guard's position
         cash_bag_position = (545, 700)  # Reset Cashbag position
         Cashbag(cash_bag_position, (self.game.all_sprites, self.game.cashbag))
 
@@ -101,11 +101,13 @@ class GuardiansGambitEnv(gym.Env):
     #     # Return the new observation, reward, done, and additional info
     #     return self.get_observation(), self.thief_reward, done, {}
 
-    def step(self, thief_action, isGuard, guard_action):
+    def step(self, thief_action=None, guard_action=None):
         dt = self.game.clock.tick() / 1000.0  # Time delta for updating the game state
 
-        self.process_thief_action(thief_action, dt)
-        self.process_guard_action(guard_action, dt)
+        if thief_action is not None:
+            self.process_thief_action(thief_action, dt)
+        if guard_action is not None:
+            self.process_guard_action(guard_action, dt)
         self.game.all_sprites.update(dt)
 
         # Check if the reward has changed
@@ -134,48 +136,9 @@ class GuardiansGambitEnv(gym.Env):
         # Update time penalty
         self.apply_time_penalty()
 
-        # Return the new observation, reward, done, and additional info
-        if isGuard:
-            return self.get_observation(), self.guard_reward, done, {}
-        else:
-            return self.get_observation(), self.thief_reward, done, {}
-    
-    def guard_step(self, action, action_thief):
-        dt = self.game.clock.tick() / 1000.0  # Time delta for updating the game state
-
-        # Process the actions for both the Guard and the Thief
-        self.process_guard_action(action, dt)
-        self.process_thief_action(action_thief, dt)
-        self.game.all_sprites.update(dt)
-
-        # Check if the reward has changed
-        current_reward = self.thief_reward + self.guard_reward
-        if current_reward != self.prev_thief_reward + self.prev_guard_reward:
-            self.last_reward_update_time = pygame.time.get_ticks()
-            self.reward_updated = True
-            self.prev_thief_reward = self.thief_reward
-            self.prev_guard_reward = self.guard_reward
-        else:
-            self.reward_updated = False
-
-        # Apply the time penalty if no reward update has occurred within 15 seconds
-        if not self.reward_updated:
-            current_time = pygame.time.get_ticks()
-            time_since_last_update = (current_time - self.last_reward_update_time) / 1000.0  # in seconds
-            if time_since_last_update >= 15:
-                print("Time penalty applied! No reward update for 15 seconds.")
-                self.thief_reward -= 0.30
-                self.guard_reward -= 0.30
-                self.last_reward_update_time = current_time  # Reset the timer
-
-        done = self.check_game_over()
-        self.calculate_rewards()
-
-        # Update time penalty if applicable
-        self.apply_time_penalty()
 
         # Return the new observation, reward, done, and additional info
-        return self.get_observation(), self.guard_reward, done, {}
+        return self.get_observation(), self.thief_reward, self.guard_reward, done, {}
 
 
     def apply_time_penalty_dist(self):
@@ -264,6 +227,7 @@ class GuardiansGambitEnv(gym.Env):
         return self.get_observation(), self.guard_reward, done, {}
 
     def process_thief_action(self, action, dt):
+        print("thief-", action)
         if action == 0:  # Thief moves up
             self.game.thief.direction.x = 0
             self.game.thief.direction.y = -1
@@ -283,16 +247,16 @@ class GuardiansGambitEnv(gym.Env):
 
         # Process the guard's chosen action
     def process_guard_action(self, action, dt):
-        if action == 1:  # Guard moves up
+        if action == 0:  # Guard moves up
             self.game.guard.direction.x = 0
             self.game.guard.direction.y = -1
-        elif action == 0:  # Guard moves down
+        elif action == 1:  # Guard moves down
             self.game.guard.direction.x = 0
             self.game.guard.direction.y = 1
-        elif action == 3:  # Guard moves left
+        elif action == 2:  # Guard moves left
             self.game.guard.direction.x = -1
             self.game.guard.direction.y = 0
-        elif action == 2:  # Guard moves right
+        elif action == 3:  # Guard moves right
             self.game.guard.direction.x = 1
             self.game.guard.direction.y = 0
 

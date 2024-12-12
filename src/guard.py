@@ -10,7 +10,7 @@ class Guard(pygame.sprite.Sprite):
 
         # movement
         self.direction = pygame.Vector2()
-        self.speed = 500
+        self.speed = 400
         self.collision_sprites = collision_sprites
 
 
@@ -18,12 +18,6 @@ class Guard(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         self.direction.x = int(keys[pygame.K_d]) - int(keys[pygame.K_a])
         self.direction.y = int(keys[pygame.K_s]) - int(keys[pygame.K_w])
-        self.movement = None
-        if not self.direction.y == 0:
-            self.movement = "down" if self.direction.y > 0 else "up"
-        if not self.direction.x == 0:
-            self.movement = "right" if self.direction.x > 0 else "left"
-        # print(self.movement)
         self.direction = self.direction.normalize() if self.direction else self.direction
 
 
@@ -33,14 +27,9 @@ class Guard(pygame.sprite.Sprite):
         self.rect.y += self.direction.y * self.speed * dt
         self.collision('vertical')
 
-        if self.rect.x > WINDOW_WIDTH:
-            self.rect.x = WINDOW_WIDTH
-        if self.rect.x < 0:
-            self.rect.x = 0
-        if self.rect.y > WINDOW_HEIGHT-50:
-            self.rect.y = WINDOW_HEIGHT-50
-        if self.rect.y < 0:
-            self.rect.y = 0
+        # Boundary checks
+        self.rect.x = max(0, min(WINDOW_WIDTH, self.rect.x))
+        self.rect.y = max(0, min(WINDOW_HEIGHT - 50, self.rect.y))
 
 
     def collision(self, direction):

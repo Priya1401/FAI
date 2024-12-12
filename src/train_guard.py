@@ -92,7 +92,7 @@ def train_guard():
             thief_action = select_action(Thief_q_table, state, env.action_space.n)
 
             # Take the chosen action for the Thief
-            obs, reward, done, info = env.step(thief_action, True, action)
+            obs, thief_reward, guard_reward, done, info = env.step(thief_action, action)
 
             # # Take the chosen action for the Guard and Thief
             # obs, reward, done, info = env.guard_step(action, thief_action)

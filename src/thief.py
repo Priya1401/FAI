@@ -11,7 +11,7 @@ class Thief(pygame.sprite.Sprite):
         
         # movement
         self.direction = pygame.Vector2()
-        self.speed = 500
+        self.speed = 400
         self.collision_sprites = collision_sprites
         self.guard = guard  # Store the guard reference
         self.camera_range = camera_range

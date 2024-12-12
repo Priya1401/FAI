@@ -43,9 +43,10 @@ def train_thief():
                 action = np.random.choice(env.action_space.n)  # Explore
             else:
                 action = np.argmax(Q_table[state])  # Exploit
-
+            guard_action = np.random.choice(env.action_space.n)
             # Take the chosen action for the Thief
-            obs, reward, done, info = env.step(action, False, action)
+            obs, reward, guard_reward, done, info = env.step(action, guard_action)
+
 
             # Convert the next state to a discrete representation
             next_state = discretize_state(obs)
