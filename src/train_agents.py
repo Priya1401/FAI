@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import time
 from env import GuardiansGambitEnv
 
@@ -7,7 +6,7 @@ from env import GuardiansGambitEnv
 ALPHA = 0.3        # Learning rate
 GAMMA = 0.9        # Discount factor
 EPSILON = 1.0      # Exploration rate (for epsilon-greedy strategy)
-EPISODES = 500     # Number of episodes for training
+EPISODES = 5000     # Number of episodes for training
 DECAY_RATE = 0.999995  # Decay rate for epsilon
 THIEF_Q_TABLE_FILE = "thief_q_table.npy"
 GUARD_Q_TABLE_FILE = "guard_q_table.npy"
@@ -83,7 +82,7 @@ def train_agents():
             # Execute both actions in the environment
             obs, thief_reward, guard_reward, done, _ = env.step(thief_action, guard_action)
 
-            print(thief_reward, guard_reward)
+            print("Thief Reward:", thief_reward, "Guard Reward:",guard_reward)
 
             next_state = discretize_state(obs)
 

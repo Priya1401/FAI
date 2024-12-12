@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import time
 from env import GuardiansGambitEnv
 
@@ -7,7 +6,7 @@ from env import GuardiansGambitEnv
 ALPHA = 0.3        # Learning rate
 GAMMA = 0.9         # Discount factor
 EPSILON = 1.0       # Exploration rate (for epsilon-greedy strategy)
-EPISODES = 500       # Number of episodes for training
+EPISODES = 5000       # Number of episodes for training
 Q_TABLE_FILE = "thief_q_table.npy"  # File to save/load Q-table
 DECAY_RATE = 0.999995  # Decay rate for epsilon
 

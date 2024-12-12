@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import time
 from env import GuardiansGambitEnv
 
@@ -7,21 +6,19 @@ from env import GuardiansGambitEnv
 ALPHA = 0.3        # Learning rate
 GAMMA = 0.9         # Discount factor
 EPSILON = 1.0       # Exploration rate (for epsilon-greedy strategy)
-EPISODES = 1       # Number of episodes for training
+EPISODES = 5000       # Number of episodes for training
 Q_TABLE_FILE = "guard_q_table.npy"  # File to save/load Q-table
 DECAY_RATE = 0.999995  # Decay rate for epsilon
 def save_q_table(file_path, q_table):
     """Save the Q-table to a file."""
     np.save(file_path, q_table)
     print(f"Q-table saved to '{file_path}'.")
-    # log_q_table_size(len(q_table), "save")
 
 def load_q_table(file_path):
     """Load the Q-table from a file."""
     try:
         q_table = np.load(file_path, allow_pickle=True).item()
         print(f"Q-table loaded from '{file_path}'.")
-        # log_q_table_size(len(q_table), "save")
         return q_table
     except FileNotFoundError:
         print(f"No existing Q-table found. Starting from scratch.")
@@ -59,7 +56,7 @@ def train_guard():
     
     for episode in range(EPISODES):
         # Reset the environment for each episode
-        obs, reward, done, info = env.reset()  # Reset and get the initial state
+        obs, guard_reward, done, info = env.reset()  # Reset and get the initial state
         done = False
 
         # Convert the initial state to a discrete representation
@@ -81,21 +78,10 @@ def train_guard():
             else:
                 action = np.argmax(Q_table[state])  # Exploit
 
-            # # Get the current state for the Thief and decide its action based on its Q-table
-            # thief_state = discretize_state(obs)  # Assuming `obs` is Thief's state representation
-            # if thief_state in thief_q_table:
-            #     thief_action = np.argmax(thief_q_table[thief_state])  # Exploit
-            # else:
-            #     thief_action = np.random.choice(env.action_space.n)  # Explore
-
-            #Choose an action for the thief either random or using q table
             thief_action = select_action(Thief_q_table, state, env.action_space.n)
 
             # Take the chosen action for the Thief
             obs, thief_reward, guard_reward, done, info = env.step(thief_action, action)
-
-            # # Take the chosen action for the Guard and Thief
-            # obs, reward, done, info = env.guard_step(action, thief_action)
 
             # Convert the next state to a discrete representation
             next_state = discretize_state(obs)
@@ -115,7 +101,7 @@ def train_guard():
             # Q-value update using the Q-learning update rule
             max_next_q = np.max(Q_table[next_state])
             Q_table[state][action] = (
-                (1 - eta) * Q_table[state][action] + eta * (reward + GAMMA * max_next_q)
+                (1 - eta) * Q_table[state][action] + eta * (guard_reward + GAMMA * max_next_q)
             )
 
             num_update_count[(state, action)] += 1
@@ -124,11 +110,11 @@ def train_guard():
             state = next_state
             env.render()  # Optional: render the environment to visualize the training
             time.sleep(0.1)  # Optional: pause for better visualization
-            print(f"Episode {episode + 1}/{EPISODES}, Step {step_count} - State: {state}, Action: {action}, Reward: {reward}, Done: {done}")
+            print(f"Episode {episode + 1}/{EPISODES}, Step {step_count} - State: {state}, Action: {action}, Reward: {guard_reward}, Done: {done}")
 
         EPSILON = max(EPSILON * DECAY_RATE, 0.01)
 
-        print(f"Episode {episode + 1}/{EPISODES} - Total Reward: {reward}")
+        print(f"Episode {episode + 1}/{EPISODES} - Total Reward: {guard_reward}")
 
         if (episode + 1) % 100 == 0:
             save_q_table(Q_TABLE_FILE, Q_table)

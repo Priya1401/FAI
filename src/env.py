@@ -5,7 +5,6 @@ import numpy as np
 import pygame
 import pygame.sprite
 from main import *
-import random
 from cashbag import *
 
 class GuardiansGambitEnv(gym.Env):
@@ -47,8 +46,8 @@ class GuardiansGambitEnv(gym.Env):
         self.last_timer_update = pygame.time.get_ticks()
         self.game.running = False
         self.game.cashbag_collected = False
-        self.game.thief.rect.topleft = (670, 650)  # Reset Thief's position
-        self.game.guard.rect.topleft = (670, 100)  # Reset Guard's position
+        self.game.thief.rect.topleft = (80, 400)  # Reset Thief's position
+        self.game.guard.rect.topleft = (670, 400)  # Reset Guard's position
         cash_bag_position = (545, 700)  # Reset Cashbag position
         Cashbag(cash_bag_position, (self.game.all_sprites, self.game.cashbag))
 
@@ -56,50 +55,6 @@ class GuardiansGambitEnv(gym.Env):
         self.prev_guard_pos = self.game.guard.rect.topleft  # Initialize previous Guard position
         done = self.check_game_over()
         return self.get_observation(), self.thief_reward, done, {}
-    
-    def show_winning_message(self, message):
-        font = pygame.font.Font(None, 74)
-        text_surface = font.render(message, True, (255, 255, 255))
-        self.game.display_surface.blit(text_surface, (WINDOW_WIDTH // 2 - text_surface.get_width() // 2, WINDOW_HEIGHT // 2))
-        pygame.display.update()
-        # pygame.time.wait(1000)
-
-    # def step(self, action):
-    #     dt = self.game.clock.tick() / 1000.0  # Time delta for updating the game state
-
-    #     # Process actions and update the game
-    #     self.process_thief_action(action, dt)
-    #     # self.process_guard_action(action, dt)
-    #     self.game.all_sprites.update(dt)
-
-    #     # Check if the reward has changed
-    #     current_reward = self.thief_reward + self.guard_reward
-    #     if current_reward != self.prev_thief_reward + self.prev_guard_reward:
-    #         self.last_reward_update_time = pygame.time.get_ticks()
-    #         self.reward_updated = True
-    #         self.prev_thief_reward = self.thief_reward
-    #         self.prev_guard_reward = self.guard_reward
-    #     else:
-    #         self.reward_updated = False
-
-    #     # Apply the time penalty if no reward update has occurred within 5 seconds
-    #     if not self.reward_updated:
-    #         current_time = pygame.time.get_ticks()
-    #         time_since_last_update = (current_time - self.last_reward_update_time) / 1000.0  # in seconds
-    #         if time_since_last_update >= 15:
-    #             print("Time penalty applied! No reward update for 5 seconds.")
-    #             self.thief_reward -= 0.30
-    #             self.guard_reward -= 0.30
-    #             self.last_reward_update_time = current_time  # Reset the timer
-
-    #     done = self.check_game_over()
-    #     self.calculate_rewards()
-
-    #     # Update time penalty
-    #     self.apply_time_penalty()
-
-    #     # Return the new observation, reward, done, and additional info
-    #     return self.get_observation(), self.thief_reward, done, {}
 
     def step(self, thief_action=None, guard_action=None):
         dt = self.game.clock.tick() / 1000.0  # Time delta for updating the game state
@@ -227,7 +182,6 @@ class GuardiansGambitEnv(gym.Env):
         return self.get_observation(), self.guard_reward, done, {}
 
     def process_thief_action(self, action, dt):
-        print("thief-", action)
         if action == 0:  # Thief moves up
             self.game.thief.direction.x = 0
             self.game.thief.direction.y = -1
@@ -266,26 +220,22 @@ class GuardiansGambitEnv(gym.Env):
     def check_game_over(self):
         if pygame.sprite.spritecollide(self.game.thief, self.game.guard_sprite, False):
             print("Thief caught by the Guard")
-            # self.show_winning_message("The Guard Won!!!")
             self.thief_reward -= 100  # Thief is caught by the guard
             self.guard_reward +=100
             return True
 
         if self.game.is_thief_in_terminal_area() and self.game.cashbag_collected:
             print("Thief reached the terminal area with cashbag")
-            # self.show_winning_message("The Thief Won!!!!")
             self.thief_reward += 100
             self.guard_reward -= 100
             return True
 
-        # print("Game continues")
         return False
 
 
     def calculate_rewards(self):
         thief_x, thief_y = self.game.thief.rect.topleft
         guard_x, guard_y = self.game.guard.rect.topleft
-        # if hasattr(self.game, 'cashbag') and self.game.cashbag:
         cashbag_x, cashbag_y = 545, 700
 
         # Reward for taking the cashbag
